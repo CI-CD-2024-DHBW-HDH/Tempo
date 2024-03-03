@@ -1,15 +1,14 @@
-FROM node:18-alpine as build
+FROM node:lts-alpine AS build
 
-WORKDIR /home/node
+WORKDIR /app
 
-COPY . /home/node
+COPY package*.json ./
+RUN npm install
+COPY . .
 
-RUN \
-    npm ci && \
-    npm run build
+RUN npm run build
 
-FROM nginx
+# Erstellen Sie das endgültige Image auf Basis von Apache
+FROM httpd:2.4-alpine
 
-COPY --from=build /home/node/dist /usr/share/nginx/html
-
-RUN ls -la /usr/share/nginx/html
+COPY --from=build /app/dist/ /usr/local/apache2/htdocs/
