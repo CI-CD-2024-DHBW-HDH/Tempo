@@ -1,11 +1,9 @@
-import { Field, getBlanks, isPlayer, Mode, won } from "../game";
+import { Field, Mode, won } from "../game";
 import { easyMove } from "./easy";
 import { hardMove } from "./hard";
 import { mediumMove, pettyMove } from "./medium";
 
-export interface BotMove {
-  (board: Field[], own: Field): number;
-}
+export type BotMove = (board: Field[], own: Field) => number;
 
 export function moveWithMode(mode: Mode): BotMove | undefined {
   switch (mode) {
@@ -27,7 +25,20 @@ export function moveWithMode(mode: Mode): BotMove | undefined {
 // winningMove returns a move player can play to win
 // if there is no winning move, it returns -1
 export function winningMove(board: Field[], player: Field): number {
-  return -1
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] === Field.EMPTY) {
+      board[i] = player;
+
+      if (won(board) === player) {
+        board[i] = Field.EMPTY;
+        return i;
+      }
+
+      board[i] = Field.EMPTY;
+    }
+  }
+
+  return -1;
 }
 
 export function randomMove(bounds: number): number {

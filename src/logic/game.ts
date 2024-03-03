@@ -27,9 +27,11 @@ export class Player {
   addWin() {
     this.score++;
   }
+
   isHuman(): boolean {
     return this.botMove === undefined;
   }
+
   move(board: Field[]): number {
     if (this.botMove !== undefined) return this.botMove(board, this.field);
     return -1;
@@ -44,7 +46,7 @@ export class Game {
   constructor(
     player: Player = new Player(Field.PLAYER1),
     enemy: Player = new Player(Field.PLAYER2),
-    mode: Mode = Mode.EASY
+    mode: Mode = Mode.EASY,
   ) {
     player.score = 0;
     enemy.score = 0;
@@ -64,6 +66,7 @@ export class Game {
         break;
     }
   }
+
   switchSides() {
     const botMove = this.player.botMove;
     this.player.botMove = this.enemy.botMove;
@@ -72,6 +75,7 @@ export class Game {
     this.player.score = this.enemy.score;
     this.enemy.score = score;
   }
+
   updateMode(mode: Mode) {
     this.mode = mode;
     if (this.player.isHuman() && this.enemy.isHuman() && mode != Mode.HUMAN) {
@@ -93,7 +97,7 @@ export class Outcome {
   }
 
   isDraw(): boolean {
-    return this.finished === true && this.winner === Field.EMPTY;
+    return this.finished && this.winner === Field.EMPTY;
   }
 }
 
@@ -102,7 +106,39 @@ export function isFull(board: Field[]): boolean {
 }
 
 export function won(board: Field[]): Field {
-  return Field.EMPTY
+  // Check rows
+  for (let i = 0; i < 3; i++) {
+    if (
+      board[i * 3] !== Field.EMPTY &&
+      board[i * 3] === board[i * 3 + 1] &&
+      board[i * 3 + 1] === board[i * 3 + 2]
+    ) {
+      return board[i * 3]; // Player 1 or Player 2 wins
+    }
+  }
+
+  // Check columns
+  for (let i = 0; i < 3; i++) {
+    if (
+      board[i] !== Field.EMPTY &&
+      board[i] === board[i + 3] &&
+      board[i + 3] === board[i + 6]
+    ) {
+      return board[i]; // Player 1 or Player 2 wins
+    }
+  }
+
+  // Check diagonals
+  if (
+    (board[0] !== Field.EMPTY &&
+      board[0] === board[4] &&
+      board[4] === board[8]) ||
+    (board[2] !== Field.EMPTY && board[2] === board[4] && board[4] === board[6])
+  ) {
+    return board[4]; // Player 1 or Player 2 wins
+  }
+
+  return Field.EMPTY; // No winner yet
 }
 
 export function newBoard(): Field[] {
